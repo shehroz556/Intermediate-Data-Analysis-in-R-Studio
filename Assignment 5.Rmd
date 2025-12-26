@@ -1,7 +1,5 @@
 ---
-title: "coding_assignment_5"
-author: "Shehroz Jawad Khan"
-date: "Assigned November 29, 2021"
+
 output: 
     html_document:
     toc: true
@@ -11,19 +9,6 @@ output:
 ---
 
 
-##### This homework is due by **11:55 pm on Sunday, December 05, 2021**.  To complete this assignment, follow these steps:
-
-1. Download the `coding_assignment_5.Rmd` file from LMS.
-
-2. Open `coding_assignment_5.Rmd` in RStudio.
-
-3. Replace the "Your Name Here" text in the `author:` field with your own name.
-
-4. Supply your solutions to the homework by editing `coding_assignment_5.Rmd`.
-
-5. When you have completed the homework and have **checked** that your code both runs in the Console and knits correctly when you click `Knit HTML`, rename the R Markdown file to `coding_assignment_5_YourNameHere.Rmd`, and submit on LMS  (YourNameHere should be changed to your own name.) You must sumbit both your .rmd **AND** your html file.
-
-##### Homework tips:
 
 1. Recall the following useful RStudio hotkeys.
 
@@ -354,3 +339,4 @@ ggplot(summary_table_viewcount_3, aes(x = year, y = avg_viewcount_danger, fill =
 From 2013 till 2015, the ads not featuring danger were getting more views than those that were featuring danger. However, in 2016, the ads featuring danger had relatively higher views by a huge margin. Hence, I will say 'not neccesarily'. We need more data points to make an inference. 
 
 </font>
+
