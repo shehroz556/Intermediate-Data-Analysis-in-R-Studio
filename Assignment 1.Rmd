@@ -1,7 +1,5 @@
 ---
-title: "coding_assignment_1_solutions"
-author: "Shehroz Jawad Khan"
-date: "Assigned Oct 6th, 2021"
+
 output: 
     html_document:
     toc: true
@@ -10,20 +8,6 @@ output:
     highlight: tango
 ---
 
-
-##### This homework is due by **11:55 pm on Sunday, Oct 16, 2021**.  To complete this assignment, follow these steps:
-
-1. Download the `coding_assignment_1.Rmd` file from LMS.
-
-2. Open `coding_assignment_1.Rmd` in RStudio.
-
-3. Replace the "Your Name Here" text in the `author:` field with your own name.
-
-4. Supply your solutions to the homework by editing `coding_assignment_1.Rmd`.
-
-5. When you have completed the homework and have **checked** that your code both runs in the Console and knits correctly when you click `Knit HTML`, rename the R Markdown file to `coding_assignment_1_YourNameHere.Rmd`, and submit **BOTH** your rmarkdown AND html file on LMS  (YourNameHere should be changed to your own name.)
-
-##### Homework tips:
 
 1. Recall the following useful RStudio hotkeys.
 
@@ -354,5 +338,6 @@ R.basic<-nrow(subset(survey_data, Rexperience=='Basic competence' & Program == "
 
 
 Of the `r num.Respondents` survey respondents, `r HSS` were NOT from the HSS program. We found that `r OS` % of the all students in the class use the Mac OS X operating system. `r R.basic` % of HSS students report having Basic competence in R.
+
 
 
