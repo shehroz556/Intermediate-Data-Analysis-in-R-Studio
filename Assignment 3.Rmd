@@ -1,0 +1,499 @@
+---
+title: "coding_assignment_3"
+author: "Shehroz Jawad Khan"
+date: "Assigned November 5, 2021"
+output: 
+    html_document:
+    toc: true
+    toc_depth: 3
+    theme: paper
+    highlight: tango
+---
+
+##### This homework is due by **11:55 pm on Sunday, November 14, 2021**.  To complete this assignment, follow these steps:
+
+1. Download the `coding_assignment_3.Rmd` file from LMS.
+
+2. Open `coding_assignment_3.Rmd` in RStudio.
+
+3. Replace the "Your Name Here" text in the `author:` field with your own name.
+
+4. Supply your solutions to the homework by editing `coding_assignment_3.Rmd`.
+
+5. When you have completed the homework and have **checked** that your code both runs in the Console and knits correctly when you click `Knit HTML`, rename the R Markdown file to `coding_assignment_3_YourNameHere.Rmd`, and submit the markdown AND the html on LMS  (YourNameHere should be changed to your own name.)
+
+##### Homework tips:
+
+1. Recall the following useful RStudio hotkeys.
+
+|Keystroke      | Description |
+|----------------|-----------------------------------------------------------------------------|
+| `<tab>`        | Autocompletes commands and filenames,  and lists arguments for functions.|
+| `<up>`         | Cycles through previous commands in the console prompt |
+| `<ctrl-up>`    | Lists history of previous commands matching an unfinished one |
+| `<ctrl-enter>` | Runs current line from source window to Console. Good for trying things out ideas from a source file. |
+| `<ESC>`        | Aborts an unfinished command and get out of the + prompt |
+
+
+
+**Note**: Shown above are the Windows/Linux keys.  For Mac OS X, the `<ctrl>` key should be substituted with the `<command>` (&#8984;) key.
+
+2. Instead of sending code line-by-line with `<ctrl-enter>`, you can send entire code chunks, and even run all of the code chunks in your .Rmd file. Look under the <Chunks> menu of the Source panel.
+
+3. Run your code in the Console and Knit HTML frequently to check for errors.
+
+4. You may find it easier to solve a problem by interacting only with the Console at first. 
+
+
+```{r, message= FALSE, warning= FALSE}
+#load libraries here 
+library(readr)
+library(psych)
+library(reshape)
+library(tidyr)
+library(dplyr)
+library(naniar)
+```
+
+```{r}
+#set working directory here 
+setwd("C:/Users/Admin/Desktop/Fall 2021/Telling Stories with Data/Coding Assignment 3")
+```
+
+
+### Problem 1: Practicing Reshaping Data
+
+##### (a) Diagnosing the problem 
+
+We'll start by loading the `pollution` dataset that has been provided to you on LMS. Load the dataset, and run a few exploratory data analysis commands including `View()` to get a feel of the dataset. 
+
+Note that:  
+- Air quality varies from 0 (bad quality) to 100 (top good quality)  
+- Water pollution varies from 0 (no pollution) to 100 (extreme pollution)  
+
+```{r}
+#Your code here 
+pollution <- read_csv("pollution.csv")
+View(pollution)
+```
+
+
+```{r}
+#To look at the top of our dataframe
+head(pollution)
+```
+
+
+```{r}
+#To look at the structure of our dataframe: variable names, types, observations
+str(pollution)
+```
+
+
+```{r}
+#To get an idea of the descriptive statistics of our data frame
+describe(pollution)
+```
+
+
+```{r}
+#For more detailed descriptive statistics
+summary(pollution)
+```
+
+
+```{r}
+#To get a sense of correlations between different variables
+pairs.panels(pollution)
+```
+
+What's one of the issues in the way the data is shaped? 
+
+<font color="#157515"><b>
+
+The data is shaped 'long' due to which there is duplicity of each observation such that we have two observations for each city relating to Air Quality and Water Pollution. 
+
+</font></b>
+
+
+##### (b) Fixing the problem 
+
+Reshape the data to fix the issue you have identified above.  
+
+```{r}
+#Your code here 
+#Reshaping the data from the long format to wide format
+pollution <- spread(pollution, measure , level)
+pollution
+```
+
+
+```{r}
+#Mutating the dataframe such that the value of the previous row is used by the current row
+pollution <- mutate(pollution,
+                    AirQuality = lead(AirQuality))
+#Dropping missing values
+pollution <- drop_na(pollution)
+pollution
+```
+
+##### (c) Renaming columns 
+
+Rearrange and rename the columns in the dataset so that the appear in the following order with the following names: 
+
+| var_name         | new_name|
+|----------------|-----------|
+| Country  | country_name |
+| City | city_name|
+| AirQuality| air_quality |
+| WaterPollution | water_pollution|
+
+
+```{r}
+#your code here 
+#Renaming variables in the dataframe
+names(pollution)[2] <- "city_name"
+names(pollution)[3] <- "country_name"
+names(pollution)[4] <- "air_quality"
+names(pollution)[5] <- "water_pollution"
+pollution
+```
+
+
+```{r}
+#Rearranging the dataframe according to country_name and city_name
+pollution <- pollution[,c(1,3,2,4,5)]
+pollution
+```
+
+
+##### (d) Rearranging the data  
+
+Rearrange the way your data is organized so that the countries and cities appear in alphabetical order i.e. All countries should be sorted alphabetically, and each city within each city should appear alphabetically.
+
+```{r}
+#Your code here 
+pollution <- pollution %>% 
+  arrange(country_name, city_name)
+pollution
+```
+
+##### (e) Creating Country Level Summaries 
+
+Create a new dataset called `country_stats` that contains the mean, median, min, and max air pollution for each country. 
+
+```{r}
+#Your code here 
+#Grouping a new dataframe by country
+country_grouped <- group_by(pollution, country_name)
+
+#Storing the required statistics in a new variable called 'country_stats'
+country_stats <- summarise(country_grouped, 
+                           mean = mean(air_quality),
+                           median = median(air_quality),
+                           min = min(air_quality),
+                           max = max(air_quality))
+
+country_stats
+
+```
+
+##### (f) Finding countries at the highest airquality levels 
+
+Create a new dataset named `at_risk_countries` that contains mean airquality levels ONLY for counries that have lower than the WORLD average airquality level. To calculate the world average, you can simply take the average of every country's average AQI. 
+
+```{r}
+#Your code here 
+#Checking the world average mean by taking the average of AQI
+mean(pollution$air_quality)
+```
+
+
+```{r}
+#Creating a new dataframe with countries that have lower than world average AQI
+at_risk_countries <- filter(country_grouped, air_quality < mean(air_quality))
+at_risk_countries <- summarise(at_risk_countries, mean_air_quality = mean(air_quality))
+at_risk_countries
+```
+```{r}
+at_risk_countries$country_name[which.min(at_risk_countries$mean_air_quality)]
+```
+
+##### (g) Finding he countries at highest risk. 
+
+Use inline coding to report how many countries have air quality levels worse than the world average. Also use the space below to discuss which country has the worst airquality. 
+
+
+<font color="#157515"><b>
+
+There are `r nrow(at_risk_countries)` countries having AQI worse than the world average. Country with the worse AQI is `r at_risk_countries$country_name[which.min(at_risk_countries$mean_air_quality)]` with an average AQI of `r which.min(at_risk_countries$mean_air_quality)`. 
+
+</font></b>
+
+### Problem 2: More practice with Dplyr 
+
+##### (a) Finding the most polluted cities for each country 
+
+Create a new dataframe that shows information on ONLY the cities that have the lowest air quality for each country. Your final dataframe should have three columns: `country_name`, `city_name` (city with the lowest airquality), and `air_quality` (corresponding airquality).  
+
+**HINT**: There are, as always, many ways to do this. You may find it most efficient to try using a new dplyr verb called `slice()`. Read the documentation here. https://dplyr.tidyverse.org/reference/slice.html
+
+```{r}
+# Your code here 
+cities_most_polluted <- 
+    pollution %>%
+    group_by(country_name) %>%
+    slice(unique(c(which(city_name == 0), which.min(air_quality)))) %>%
+    select(country_name, city_name, air_quality)
+head(cities_most_polluted)
+```
+
+##### (b) Finding the difference between the most and least polluted cities 
+
+Create a new dataset that reports the difference between the highest and lowest airquality cities in each country. Your final dataset should contain the following columns: `country_name`, `worst_airquality`, `best_airquality`, `variation`. 
+
+```{r}
+# Your code here 
+difference_in_maxmin_airquality <- summarise(country_grouped, best_airquality = max(air_quality), worst_airquality = min(air_quality), variation = best_airquality - worst_airquality)
+head(difference_in_maxmin_airquality)
+```
+
+### Problem 3:Practice with Data Cleaning 
+
+##### (a) Diagnosing the problem 
+
+For this problem, start by loading the `metal_bands` dataset that has been provided to you on LMS. Load the dataset, and run a few exploratory data analysis commands including `View()` to get a feel of the dataset. Pay special attention to the datatypes. 
+
+```{r}
+# Import data file here
+metal_bands_2017 <- read_csv("C:/Users/Admin/Desktop/Fall 2021/Telling Stories with Data/Coding Assignment 3/metal_bands_2017.csv")
+View(metal_bands_2017)
+```
+
+
+```{r}
+head(metal_bands_2017)
+```
+
+
+```{r}
+str(metal_bands_2017)
+```
+
+
+```{r}
+describe(metal_bands_2017)
+```
+
+
+```{r}
+summary(metal_bands_2017)
+```
+
+
+```{r}
+pairs.panels(metal_bands_2017)
+```
+
+##### (a) Cleaning up the missing values
+
+How does this dataset deal with missing values? Can you replace all instances of missing values with the correct format for missing values i.e. `NA`
+
+```{r}
+# Your code here 
+#We see that missing values are denoted by '-' in the split variable
+metal_bands_2017$split <- as.numeric(metal_bands_2017$split)
+typeof(metal_bands_2017$split)
+str(metal_bands_2017$split)
+```
+
+##### (b) Creating a new subset
+
+Suppose you ONLY want to look at bands from the 90s and the 2000s. Create a new dataset that contains information ONLY from bands that were formed between 1990 and 2010.  
+
+```{r}
+# Your code here 
+bands_90s_2000s <- subset(metal_bands_2017, formed >= 1990 & formed <= 2010,
+                          select = c(band_name, fans, formed, origin, split, style))
+bands_90s_2000s
+```
+
+##### (c) Adding a new variable 
+
+Add a new variable to your subsetted dataframe called `decade` that takes the values "1990s" if the band was formed in the 1990s and "2000s" if the band was formed in the 2000s. 
+
+```{r}
+# Your code here 
+bands_90s_2000s <- bands_90s_2000s <- bands_90s_2000s %>% 
+  mutate(decade = case_when(formed >= 1990 & formed < 2001 ~ "1990s",
+                         formed >= 2001 & formed < 2011 ~ "2000s"
+  ))
+head(bands_90s_2000s)
+```
+
+##### (d) Were metal bands in the 1990s more popular than metal bands in the 2000s? 
+
+Create a summary table that shows the total number of metal band fans by decade.  
+
+```{r}
+# Your code here 
+fans_by_decade <- group_by(bands_90s_2000s,decade)
+fans_by_decade <- summarise(fans_by_decade, sum_fans = sum(fans))
+fans_by_decade
+```
+
+
+```{r}
+fans_by_decade[which.min(fans_by_decade$sum_fans),1]
+```
+
+Use inline coding to report which year the metal genre was more popular in.  
+
+<font color="#157515"><b>
+
+The metal genre was more popular in `r fans_by_decade[which.max(fans_by_decade$sum_fans),1]`.
+
+</font></b>
+
+### Problem 4: Evolved group analysis 
+
+##### (a) Does the USA produce more death metal bands than the UK? 
+
+Go back to your original dataframe with the full range of years. Create a summary table that shows the counts of bands from the UK and the USA. 
+
+**Hint**: You may need to do some data cleaning to get the right values for UK and USA. Try to diagnose the issue by running this command: `levels(as.factor(metal_bands$origin))`. Once you have diagnosed the issues, think about which method might be best to fix it. You may find the `gsub()` function useful here. 
+```{r}
+levels(as.factor(metal_bands_2017$origin))
+```
+```{r}
+#The issue is such that there are multiple origins to each bands. Secondly, there is a problem with USA and UK origins. Some are termed as "United States of America", and some are termed as USA. The same goes for UK origin. What we have to do is make sure that there are not multiple origins for each band, and also make sure that there is consistency in how USA and UK origins are termed. #Gsub is used to replace all matches of a pattern from a string. If the pattern is not found in the string, the string will be returned as it is.
+```
+
+```{r}
+## Code for data cleaning here
+
+metal_bands_2017$origin <- gsub('USA', 'United States of America', metal_bands_2017$origin) #Replacing all instances of USA with United States of America
+
+metal_bands_2017$origin <- gsub('UK', 'United Kingdom', metal_bands_2017$origin) #Replacing all instances of UK with United Kingdom
+
+head(metal_bands_2017$origin)
+
+#We are still facing the problem of multiple origins for each band
+
+```
+```{r}
+#Creating a new dataframe with US and UK as origins
+df_USUK_origin = filter(metal_bands_2017, grepl('United States of America|United Kingdom', origin))
+df_USUK_origin <- mutate(df_USUK_origin, origin = if_else(grepl('United States of America', origin, fixed = TRUE), 'United States of America', 'United Kingdom')) 
+levels(as.factor(df_USUK_origin$origin))
+
+#The problem has been solved
+```
+
+```{r}
+# Summary table here 
+df_USUK_origin %>% 
+  group_by(origin) %>%
+  summarise(num = n())
+```
+
+
+##### (b) Are bands from the USA more popular than bands in the UK? 
+
+Create a summary table that shows the average as well as median number of fans for bands from the UK and bands from the USA. 
+
+```{r}
+# Your code here 
+df_USUK_origin %>%
+    group_by(origin) %>%
+    summarise(
+        mean_fans = mean(fans),
+        median_fans = median(fans)
+    )
+```
+
+##### (c) Do bands in the USA last longer than bands from the UK? 
+
+Create a summary table that shows the average and median duration a band has been in existence for bands from the UK and bands from the USA.  
+
+Note that before you do this, you will have to do a treatment for the missing values in the `formed` and `split` variables. Think about what values makes the most sense to impute the NAs with.  
+
+Justify your choices  below.  
+
+<font color="#157515"><b>
+
+ The average duration of the band in UK is higher than the band in US (2.78 > 2.23). The median duration is the same for both (0). 
+
+</font></b>
+
+```{r}
+#data cleaning here 
+summary(df_USUK_origin) #There are two NAs in the 'formed' variable and 632 missing values in the split variable. 
+
+```
+```{r}
+#We look at the two NAs from the 'formed' variable and extract their row numbers
+
+which(is.na(df_USUK_origin$formed))
+```
+
+
+```{r}
+a <- df_USUK_origin[c(1340, 1487), ]
+a #We see that they also do not have a split date so it will be better to remove these observations
+```
+```{r}
+#Removing NAs rows from 'formed'
+df_USUK_origin = df_USUK_origin[-c(1340, 1487),]
+
+summary(df_USUK_origin) #No NAs exist for formed now
+```
+
+
+```{r}
+## summary table here 
+
+#It makes sense to replace those that do not have split dates with the median value of their split dates
+
+df_USUK_origin$split[is.na(df_USUK_origin$split)] <- median(df_USUK_origin$split, na.rm=TRUE)
+
+#Now we determine the difference between their split dates and formed dates
+df_USUK_origin %>%
+  mutate(duration_band = split - formed) %>% 
+  group_by(origin) %>% 
+  summarise(avg_duration = mean(duration_band), median_duration = median(duration_band))
+```
+
+### Problem 5: Fun with Strings 
+
+
+##### (a) Can we classify metal bands based on their style? 
+
+Create a new variable called `death` that takes the value "death" if ONE of the bands styles contains death, and "other" otherwise. You may find it useful to combine  `mutate`, `ifelse` and `grepl()` for this task, but you can choose to do it in any way that works for you. Read the documentation for the grepl() function by typing `?grepl()` into your console. 
+Recall that R is case sensitive so it will read 'death' and 'Death' as two different things, when they should be the same for our purposes. 
+
+```{r}
+# Your code here 
+metal_bands_2017 <- mutate(metal_bands_2017, death = if_else(grepl('death', style, ignore.case = TRUE), 'death', 'other'))
+
+filter(metal_bands_2017, death == 'death')
+```
+
+##### (b) How many metal bands are death metal? 
+
+Create a summary table to answer the following question:  
+
+**What proportion of all metal bands are death metal?**  
+
+```{r}
+# Your code here 
+metal_bands_2017 %>% 
+  group_by(death) %>% 
+  summarise(n())
+```
+
+<font color="#157515"><b>
+
+The total number of bands (death + other) is 1294 + 3706. Hence, the proportion of all metal bands which are death metal is 1294/(1294 + 3706). This comes out to be approximately 26%. 
+
+</font></b>
