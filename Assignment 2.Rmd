@@ -1,0 +1,478 @@
+---
+title: "coding_assignment_2"
+author: "Shehroz Jawad Khan"
+date: "Assigned Feb 16, 2021"
+output: 
+    html_document:
+    toc: true
+    toc_depth: 3
+    theme: paper
+    highlight: tango
+---
+
+
+##### This homework is due by **11:55 pm on Sunday, October 24th, 2021**.  To complete this assignment, follow these steps:
+
+1. Download the `coding_assignment_2.Rmd` file from LMS.
+
+2. Open `coding_assignment_2.Rmd` in RStudio.
+
+3. Replace the "Your Name Here" text in the `author:` field with your own name.
+
+4. Supply your solutions to the homework by editing `coding_assignment_2.Rmd`.
+
+5. When you have completed the homework and have **checked** that your code both runs in the Console and knits correctly when you click `Knit HTML`, rename the R Markdown file to `coding_assignment_2_YourNameHere.Rmd`, and submit **BOTH** your rmarkdown AND html file on LMS  (YourNameHere should be changed to your own name.)
+
+##### Homework tips:
+
+1. Recall the following useful RStudio hotkeys.
+
+|Keystroke      | Description |
+|----------------|-----------------------------------------------------------------------------|
+| `<tab>`        | Autocompletes commands and filenames,  and lists arguments for functions.|
+| `<up>`         | Cycles through previous commands in the console prompt |
+| `<ctrl-up>`    | Lists history of previous commands matching an unfinished one |
+| `<ctrl-enter>` | Runs current line from source window to Console. Good for trying things out ideas from a source file. |
+| `<ESC>`        | Aborts an unfinished command and get out of the + prompt |
+
+
+
+**Note**: Shown above are the Windows/Linux keys.  For Mac OS X, the `<ctrl>` key should be substituted with the `<command>` (&#8984;) key.
+
+2. Instead of sending code line-by-line with `<ctrl-enter>`, you can send entire code chunks, and even run all of the code chunks in your .Rmd file. Look under the <Chunks> menu of the Source panel.
+
+3. Run your code in the Console and Knit HTML frequently to check for errors.
+
+4. You may find it easier to solve a problem by interacting only with the Console at first. 
+
+```{r}
+library(readr)
+cereal <- read_csv("C:/Users/Admin/Desktop/Fall 2021/Telling Stories with Data/Coding Assignment 2/cereal.csv")
+View(cereal)
+```
+
+
+
+### Problem 1: Exploring Dataframes 
+
+We'll start by loading the cereal dataset that has been provided to you LMS. Call your dataset `cereal`. Once you have loaded your dataset. Rename the variables in your dataset using the following mapping: 
+
+|original_name         | new_name |
+|----------------|-----------------------------------------------------------------------------|
+| `<name>`        | name|
+| `<mfr>`         | manufacturer |
+| `<type>`    | hot_cold|
+| `<calories>` | calories |
+| `<protein>`        | protein|
+| `<fat>`        | fat |
+| `<sodium>`        | sodium |
+| `<fiber>`        | fiber |  
+| `<carbo>`        | carbohydrates |  
+| `<sugars>`        | sugars |  
+| `<potass>`        | potassium |  
+| `<vitamins>`        | vitamins |  
+| `<shelf>`        | display_shelf | 
+| `<weight>`        | weight_ounces |  
+| `<cups>`        | cups_in_serving |  
+| `<rating>`        | rating |  
+
+```{r}
+## Your code here 
+names(cereal) <- c("name", "manufacturer", "hot_cold", "calories", "protein", "fat", "sodium", "fiber", "carbohydrates", "sugars","potassium","vitamins", "display_shelf", "weight_ounces", "cups_in_serving", "rating")
+```
+
+##### (a) Exploring the dataset 
+
+Run a few commands to get a feel of the dataset. 
+
+```{r}
+## Your code here 
+head(cereal)
+str(cereal)
+summary(cereal)
+```
+
+##### (b) Using the commands you ran in problem **(a)** report the following metrics on this dataset: 
+
+1. How many rows and how many columns?  
+2. What is the minimum and maximum rating of cereals in this dataset?  What is your guess about what the rating is out of?  
+3. What is the mean and median of the sodium variable? Do you think the distribution of the sodium variable is skewed towards the right or the left?  
+4. What type of variable is hot_cold? Is it ordered? 
+
+<font color="#157515"><b>
+
+1 There are 77 rows and 16 columns in the dataset
+2 The minimum rating is 18.04 and the maximum rating is 93.70. My guess is that the rating is out of 100. 
+3 The mean and median of the sodium variable is 159.7 and 180.0 respectively. The mean is less than the medium so negatively-skewed. 
+4 Hot_Cold's data type is 'character'. It is not ordered. 
+
+</font></b>
+
+### Problem 2: Working with Factors   
+
+For this problem you will need the `<plyr>` and `<dplyr>` packages. Run the code chunk below to load them into your working space.  
+*Note: Your will need to install them if you haven't already.*
+
+```{r, message=FALSE, warning=FALSE}
+library(plyr)
+library(dplyr)
+```
+
+
+##### (a) Checking Levels  
+
+Write code that checks the levels of the manufacturer column. 
+
+```{r}
+## Your code here 
+levels(cereal$manufacturer)
+# The manufacturer variable has 'character' as data type, whereas levels is only applied on factor variables. Therefore, we will use the unique function. 
+unique(cereal$manufacturer)
+```
+
+##### (b) Mapvalues 
+
+Let's give the manufacturer variable more meaningful names. Write code that alters the manufacturer column to reflect the following mapping:  
+
+**Manufacturer of cereal**  
+  
+    A = American Home Food Products
+    G = General Mills  
+    K = Kelloggs  
+    N = Nabisco  
+    P = Post  
+    Q = Quaker Oats  
+    R = Ralston Purina  
+
+```{r}
+## Your code here 
+cereal$manufacturer <- mapvalues(cereal$manufacturer, 
+                                   from = c("A", "G", "K", "N", "P", "Q", "R"), 
+                                   to = c("American Home Food Products", "General Mills ", "Kelloggs ","Nabisco","Post","Quaker Oats","Ralston Purina")) 
+head(cereal)
+```
+
+##### (c) Cleaning up 
+
+Now write code that checks the levels of the hot_cold column. Use the space below to describe a problem with this column.   
+```{r}
+## Your code here 
+levels(cereal$hot_cold)
+#The same problem exists for hot_cold variable as it is 'character' and we want it to be factor. Therefore, we will use the unique function. 
+unique(cereal$hot_cold)
+```
+
+**Description of the problem:**
+<font color="#157515"><b>
+
+The observations in this variable have jumbled up characters. We want only 'Hot' and 'Cold' as levels, however, R is showing us 5 levels due to jumbled up characters. 
+
+</font></b>
+
+##### (d) Cleaning up 
+
+Use the mapvalues and mutate functions to fix the hot_cold column by mapping all of the lowercase and mixed case instances to a *consistent* case. Create a new dataset called cereal2, and leave the dataset you created in part (b) untouched. Make sure you check your remapping was successful. 
+
+```{r}
+## Your code here 
+cereal2  <- mutate(cereal, 
+                hot_cold = as.factor(mapvalues(hot_cold, 
+                                              from = c("COLd","COLD", "CoLD", "cold", "CoLD"), 
+                                              to = c("Cold","Cold","Cold", "Cold", "Cold"))))
+unique(cereal2$hot_cold)
+
+```
+
+
+##### (e) Isn't there an easier way to do this? 
+
+The `toupper()` function takes an array of character strings and converts all letters to uppercase. Alternatively, `tolower()` can take an array of character strings and convert all the letters to lowercase. 
+
+Use `toupper()` OR `tolower()` and mutate to perform the same data cleaning task as in part (d) on the dataset from part(b). Save the results in a new column called `<hot_cold_new>` Check if the remapping was successful.  
+*Note: Make sure you turn the new column into a factor*  
+
+```{r}
+## Your code here 
+cereal$hot_cold_new=toupper(cereal$hot_cold)
+```
+
+
+### Problem 3: Exploring Dataframes 
+
+Work on the dataset returned by Problem 2 part (e). 
+
+##### (a) Subsetting 
+
+Write code that creates a dataframe for cereals manufacturered ONLY by Quaker Oats or Kellogs and have less than a 100 calories.  
+Check the first 3 rows of this new dataframe. 
+
+```{r}
+
+## Your code here 
+cereal_df= subset(cereal, 
+       select = c("name", "manufacturer", "hot_cold", "calories", "protein", "fat", "sodium", "fiber", "carbohydrates", "sugars","potassium","vitamins", "display_shelf", "weight_ounces", "cups_in_serving", "rating"),
+       subset = (manufacturer == "Quaker Oats" | manufacturer == "Kelloggs ") & 
+                (calories<100)
+       )
+head(cereal_df)
+```
+
+##### (b) More practice with factors 
+
+Run the code below to create a variable called calorie bins that ranks cereals based on the number of calories it has. Once the new variable `<calorie_bins>.` has been created, write code to order it from low, medium, high. 
+
+**Note**: This code chunk has been set to eval = FALSE, set this to TRUE before you knit your html. 
+
+```{r, eval = FALSE}
+## Creating Bins 
+b <- c(-Inf, 100, 120, Inf )
+
+#Create a vector of names for break points:
+names <- c("Low", "Medium", "High")
+ 
+cereal$calorie_bins <- cut(cereal$calories, breaks = b, labels = names)
+
+levels(cereal$calorie_bins)
+```
+
+```{r}
+## Your code here 
+cereal$calorie_bins <- sort(cereal$calorie_bins)
+```
+
+##### (c) Produce a summary for cereals by calorie bins. 
+
+How many cereals in our dataset fall into the high calorie bin we defined? 
+
+```{r}
+## Your code here 
+summary(cereal$calorie_bins)
+```
+
+<font color="#157515"><b>
+
+8 cereals fall into the category of high calorie bin defined. 
+
+</font></b>
+
+
+### Problem 4: Data Exploration
+
+##### (a) Computing mean by group 
+
+Write code to find the mean calories for cereals produced by Quaker Oats and the mean calories for cereals produced by Nabisco. Between these two options, which manufacturer do you think makes healthier cereals? 
+
+```{r}
+## Your code here 
+mean(cereal$calories[cereal$manufacturer == "Quaker Oats"])
+mean(cereal$calories[cereal$manufacturer == "Nabisco"])
+```
+
+<font color="#157515"><b>
+
+Nabisco makes healthier cereals since it has a lower number of mean calories.
+
+</font></b>
+
+##### (b) New Variables 
+
+Create a new variable high_sugar which takes the value 1 if sugars are greater than 10 and zero otherwise. 
+
+```{r}
+## Your code here 
+cereal$high_sugar = ifelse(cereal$sugars> 10, 1, 0)
+
+```
+
+##### (c) More evolved group analysis 
+
+Write code to find the mean calories for cereals produced by Quaker Oats and the mean calories for cereals produced by Kellogs, but this time also add an additional constraint for whether or not the cereal is high sugar.  
+
+Does the number of sugars in a cereal have any impact on its calories?  
+
+```{r}
+## Your code here 
+mean(cereal$calories[cereal$manufacturer == "Quaker Oats" & cereal$high_sugar==1])
+mean(cereal$calories[cereal$manufacturer == "Quaker Oats" & cereal$high_sugar==0])
+mean(cereal$calories[cereal$manufacturer == "Kelloggs " & cereal$high_sugar==1])
+mean(cereal$calories[cereal$manufacturer == "Kelloggs " & cereal$high_sugar==0])
+```
+
+<font color="#157515"><b>
+We can see that the mean calories are higher for both 'Quaker Oats' and 'Kelloggs' when the cereal is also high sugar. Hence, the number of sugars have a definitive positive impact on the number of calories in the cereal. 
+</font></b>
+
+### Problem 5: Basic Functions and Loops 
+
+##### (a) Write a basic conversion function 
+
+Notice that the dataset contains each cereal's weight in ounces. Write a function take converts weight in ounces to weight in grams, rounded off to the nearest 2 decimal places. Make sure you test the function you create. 
+
+**HINT**: You may find it useful to google the ounce to gram conversion before you implement in your code.
+
+```{r}
+
+# Here's a function skeleton to get you started
+
+# This function converts ounces to grams 
+
+OuncesToGrams <- function(input, r = 2) {
+  x <- input*28.66
+  round(x,r)
+
+}
+OuncesToGrams(15, r = 2)
+```
+
+
+##### (b) Applying your function  
+
+Use the function you created above to add a new column called `weight_grams` to your `cereal` dataset, to each cereal's weight in ounces. 
+
+```{r}
+
+## Your code here 
+cereal$weight_grams  <- OuncesToGrams(cereal$weight_ounces, r=2)
+
+```
+
+##### (c) A basic for loop 
+
+Write a basic for loop that prints the column name and class type of the first 16 columns in the cereal data set. You can check the class of a vector by using the `class()` function.The output format should be the following: 
+
+The variable ___ has class type ____. 
+
+```{r}
+## Your code here 
+
+for (i in colnames(cereal)){
+  print(paste("The variable",i ,"has class type",class(cereal[[i]])))
+}
+
+```
+
+
+
+### Problem 6: Slightly More Advanced Functions and Loops 
+
+##### (a) Writing a trimmed mean function
+
+Write a function that calculates the mean of a numeric vector `x`, ignoring the `s` smallest and `l` largest values (this is a *trimmed mean*).  
+
+E.g., if `x = c(1, 7, 3, 2, 5, 0.5, 9, 10)`, `s = 1`, and `l = 2`, your function would return the mean of `c(1, 7, 3, 2, 5)` (this is `x` with the 1 smallest value (0.5) and the 2 largest values (9, 10) removed).
+
+Your function should use the `length()` function to check if `x` has at least `s + l + 1` values.  If `x` is shorter than `s + l + 1`, your function should use the `message()` function to tell the user that the vector can't be trimmed as requested.  If `x` is at least length `s + l + 1`, your function should return the trimmed mean.
+
+It is useful to break down this problem into it's various parts before you start writing the code. 
+E.g:  
+Step 1: Get the smallest and largest values of the vector (It may be useful to recall the `sort()` function we learned about)  
+Step 2: Check the `length` of the vector  
+Step 3: IF the length of the vector is less  than s+l+1 THEN give message
+ELSE  
+Step 4: Get the mean of all values of the vector excluding the S smallest and L largest elements  
+
+**HINT**: Remember, there are many ways to write this function. ONE way you might consider is to calculate the mean of only the relevant indexes of the vector after sorting.  
+
+```{r}
+# Here's a function skeleton to get you started
+
+# This function calculates the mean of a numeric vector ignoring the specified number of smallest and largest values
+x = c(1, 7, 3, 2, 5, 0.5, 9, 10)
+y = c(0.1, 2, 3, 5, 7, 2, 1, 1.5, 2.5)
+
+trimmedMean <- function(x, s = 0, l = 0) {
+  s = min(x)
+  l = max(x)
+  z = length(x)
+  if (z < s+l+1){
+    message("your function can't be trimmed")
+  }
+  else
+  {
+    mean(x[which(x != s & x!=l)])
+  }
+
+}
+trimmedMean(x)
+trimmedMean(y)
+```
+
+**Note:** The `s = 0` and `l = 0` specified in the function definition are the default settings.  i.e., this syntax ensures that if `s` and `l` are not provided by the user, they are both set to `0`.  Thus the default behaviour is that the `trimmedMean` function doesn't trim anything, and hence is the same as the `mean` function.  
+
+##### (b) Apply your function with a for loop
+
+The below code creates a random list for you to apply your new function on. 
+
+```{r, fig.width = 12, fig.height = 4}
+set.seed(201802) # Sets seed to make sure everyone's random vectors are generated the same
+list.random <- list(x = rnorm(50), 
+                    y = rexp(65),
+                    z = rt(100, df = 1.5))
+
+# Here's a Figure showing histograms of the data
+par(mfrow = c(1,3))
+hist(list.random$x, breaks = 15, col = 'grey')
+hist(list.random$y, breaks = 10, col = 'forestgreen')
+hist(list.random$z, breaks = 20, col = 'steelblue')
+```
+
+Using a `for loop` and your function from part **(a)**, create a vector whose elements are the trimmed means of the vectors in `list.random`, taking `s = 5` and `l = 5`. 
+
+**Note**: you will need to create an empty vector first to store the results of your for loop in. 
+
+```{r}
+
+## Your code here 
+#Checking the actual trimmed mean values before creating the loop
+trimmedMean(list.random$x)
+trimmedMean(list.random$y)
+trimmedMean(list.random$z)
+
+#Creating the loop
+trimmed_means = c()
+for (i in list.random){
+  tz <- trimmedMean(i)
+  trimmed_means = c(trimmed_means, tz)
+}
+trimmed_means
+
+
+```
+
+
+##### (c) Calculate the un-trimmed means for each of the vectors in the list.  How do these compare to the trimmed means you calculated in part (b)?  Explain your findings.  
+
+```{r}
+
+## Your code here 
+mean(list.random$x)
+mean(list.random$y)
+mean(list.random$z)
+
+```
+
+**Explanation:** 
+<font color="#157515"><b>
+
+The mean for x in list.random is the same as its trimmed mean. The mean for y in list.random is higher than its trimmed mean. The mean for z in list.random is lesser than its trimmed mean. 
+For x, the reason could be that the data has a normal distribution. Therefore, if the smallest value removed were -2, the largest value removed would be 2. This would leave the mean unchanged even after trimmming. 
+For y, the reason could be that the data is skewed to the right. There are a lot of values close to 0 and a very small number of values higher in magnitude. After removing the smallest value close to 0 and the outliers i.e largest values, the trimmed mean comes out to be lower. 
+For z, there were a lot of 0s as seen by the histogram and few negative and few positive values. The negative values removal might have caused the trimmed mean to be higher. 
+
+</font></b>
+
+##### (d) lapply(), sapply()
+
+Repeat part **(b)**, using the `lapply` and `sapply` functions instead of a for loop.  Your `lapply` command should return a list of trimmed means, and your `sapply` command should return a vector of trimmed means.
+
+```{r}
+## Your answer here 
+trimmed_means_list <- lapply(list.random, trimmedMean)
+trimmed_means_list
+trimmed_means_vector <- sapply(list.random, trimmedMean)
+trimmed_means_vector
+```
+
+
+**Hint** `lapply` and `sapply` can take arguments that you wish to pass to the `trimmedMean` function.  E.g., if you were applying the function `sort`, which has an argument `decreasing`, you could use the syntax `lapply(..., FUN = sort, decreasing = TRUE)`.
+
