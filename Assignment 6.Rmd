@@ -1,7 +1,5 @@
 ---
-title: "coding_assignment_6"
-author: "Shehroz Jawad Khan"
-date: "Assigned December 15, 2021"
+
 output: 
     html_document:
     toc: true
@@ -11,19 +9,6 @@ output:
 ---
 
 
-##### This homework is due by **11:55 pm on Saturday, December 25, 2021**.  To complete this assignment, follow these steps:
-
-1. Download the `coding_assignment_6.Rmd` file from LMS.
-
-2. Open `coding_assignment_6.Rmd` in RStudio.
-
-3. Replace the "Your Name Here" text in the `author:` field with your own name.
-
-4. Supply your solutions to the homework by editing `coding_assignment_6.Rmd`.
-
-5. When you have completed the homework and have **checked** that your code both runs in the Console and knits correctly when you click `Knit HTML`, rename the R Markdown file to `coding_assignment_6_YourNameHere.Rmd`, and submit on LMS  (YourNameHere should be changed to your own name.) You must sumbit both your .rmd **AND** your html file.
-
-##### Homework tips:
 
 1. Recall the following useful RStudio hotkeys.
 
@@ -64,13 +49,13 @@ library(tidyverse)
 #Loading the required datasets
 
 #Stopsdata11
-StopData11 <- read_csv("C:/Users/Admin/Desktop/Fall 2021/Telling Stories with Data/Coding Assignment 6/Coding Assignment 6 Data/StopData11.csv")
+StopData11 <- read_csv("pathway")
 
 head(StopData11)
 ```
 ```{r}
 #Stopsdata21
-StopData21 <- read_csv("C:/Users/Admin/Desktop/Fall 2021/Telling Stories with Data/Coding Assignment 6/Coding Assignment 6 Data/StopData21.csv")
+StopData21 <- read_csv("pathway")
 
 head(StopData21)
 ```
@@ -125,7 +110,7 @@ head(IncomeData)
 
 ```{r}
 #CourtsData1
-CourtsData1 <- read_csv("C:/Users/Admin/Desktop/Fall 2021/Telling Stories with Data/Coding Assignment 6/Coding Assignment 6 Data/CourtsData1.csv")
+CourtsData1 <- read_csv("pathway")
 
 #Merging IncomeData and CourtsData1 by 'stop_id'
 
@@ -348,3 +333,4 @@ t.test(ticket == "TRUE" ~ driver_sex, alternative = "greater", data = StopData11
 We fail to reject the null hypothesis at 1% significance level or even 5% significance level as the p-value > 0.01 and p-value >0.05. For this reason, we say that male drivers are not safer than female drivers, but instead, female drivers are more safer than male drivers. This result confirm our observations made through the histogram. 
 
 </font>
+
