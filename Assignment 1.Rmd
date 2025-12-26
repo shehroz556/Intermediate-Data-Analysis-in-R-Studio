@@ -1,0 +1,358 @@
+---
+title: "coding_assignment_1_solutions"
+author: "Shehroz Jawad Khan"
+date: "Assigned Oct 6th, 2021"
+output: 
+    html_document:
+    toc: true
+    toc_depth: 3
+    theme: paper
+    highlight: tango
+---
+
+
+##### This homework is due by **11:55 pm on Sunday, Oct 16, 2021**.  To complete this assignment, follow these steps:
+
+1. Download the `coding_assignment_1.Rmd` file from LMS.
+
+2. Open `coding_assignment_1.Rmd` in RStudio.
+
+3. Replace the "Your Name Here" text in the `author:` field with your own name.
+
+4. Supply your solutions to the homework by editing `coding_assignment_1.Rmd`.
+
+5. When you have completed the homework and have **checked** that your code both runs in the Console and knits correctly when you click `Knit HTML`, rename the R Markdown file to `coding_assignment_1_YourNameHere.Rmd`, and submit **BOTH** your rmarkdown AND html file on LMS  (YourNameHere should be changed to your own name.)
+
+##### Homework tips:
+
+1. Recall the following useful RStudio hotkeys.
+
+|Keystroke      | Description |
+|----------------|-----------------------------------------------------------------------------|
+| `<tab>`        | Autocompletes commands and filenames,  and lists arguments for functions.|
+| `<up>`         | Cycles through previous commands in the console prompt |
+| `<ctrl-up>`    | Lists history of previous commands matching an unfinished one |
+| `<ctrl-enter>` | Runs current line from source window to Console. Good for trying things out ideas from a source file. |
+| `<ESC>`        | Aborts an unfinished command and get out of the + prompt |
+
+
+
+**Note**: Shown above are the Windows/Linux keys.  For Mac OS X, the `<ctrl>` key should be substituted with the `<command>` (&#8984;) key.
+
+2. Instead of sending code line-by-line with `<ctrl-enter>`, you can send entire code chunks, and even run all of the code chunks in your .Rmd file. Look under the <Chunks> menu of the Source panel.
+
+3. Run your code in the Console and Knit HTML frequently to check for errors.
+
+4. You may find it easier to solve a problem by interacting only with the Console at first. 
+
+
+### Problem 1: Simple Boolean operations
+
+> Tip:  Note that each of the code blocks in this Problem contain the expression `eval = FALSE`.  This tells R Markdown to display the code contained in the block, but not to evaluate it.  To check that your answer makes sense, be sure to try it out in the console with various choices of values for the variable `x`.   
+
+
+##### (a) Checking equality.
+
+Given a variable `x`, write a Boolean expression that evaluates to `TRUE` if the variable `x` is equal to `-20` (the numeric value).  
+
+```{r, eval = FALSE}
+# Insert your Boolean expression here
+x <- c(1, 2, 3, 94842, -20, NA)
+
+##Your code here 
+ifelse(x == -20, TRUE, FALSE)
+```
+
+
+##### (b) Checking inequality.
+
+Given a variable `x`, write a Boolean expression that evaluates to `TRUE` if the variable `x` is *not* `NA` (i.e., is not missing).
+
+```{r, eval = FALSE}
+# Insert your Boolean expression here
+x <- c(1, 2, 3, 94842, -20, NA)
+
+##Your code here 
+ifelse (x != "NA", T, F)
+```
+
+##### (c) Checking if a number is in a given range. 
+
+Given a (possibly negative) number `x`, write a Boolean expression that returns `TRUE` if and only if `x` is smaller than `-10` or bigger than `40`.  
+
+```{r, eval=FALSE}
+# Insert your Boolean expression here
+x <- c(1, 2, 3, 94842, -20, NA)
+
+##Your code here 
+ifelse(x < -10 | x > 40, T, F)
+```
+
+##### (d) A more complicated example.
+
+Given an integer number `x`, write a Boolean expression that returns `TRUE` if and only if `x` is an **odd** number between -8 and 12 or 100 and 150.  
+
+```{r, eval=FALSE}
+# Insert your Boolean expression here
+x <- c(1, 2, 3, 94842, -20, NA)
+
+##Your code here 
+ifelse((x %% 2 != 0) & (x > -8 & x < 12) | (x > 100 & x < 150), T, F)
+```
+
+**Tip**: Recall the modulus operator we saw in lecture 7: `%%`.  For integers `x` and `y`, `x %% y` is the remainder of `x` divided by `y`.  
+
+### Problem 2: Vector Boolean operations
+
+##### (a) R has two kinds of Boolean operators implemented, single (`&`, `|`) and double (`&&`, `||`).  
+
+One of these operators takes advantage of something called *lazy evaluation* while the other does not.  They also don't behave the same way when applied to *vectors*.  
+
+Read the help file (`help("||")`) and construct some examples to help figure out how the two behave.  
+
+To help you get started, try out the following two examples in your console:
+
+```{r, eval = FALSE}
+# Example:  The variable y.prob2a is never defined.  
+# (Do not define it!)
+# What happens when you run this code?
+x.prob2a <- 5
+(x.prob2a < 10) | (y.prob2a > 2)
+(x.prob2a < 10) || (y.prob2a > 2)
+```
+
+```{r, eval = FALSE}
+# Define vectors
+x.prob2a.vec <- c(TRUE, FALSE, FALSE)
+y.prob2a.vec <- c(TRUE, TRUE, FALSE)
+
+# Apply various Boolean operations to see what happens
+x.prob2a.vec & y.prob2a.vec
+x.prob2a.vec && y.prob2a.vec
+x.prob2a.vec | y.prob2a.vec
+x.prob2a.vec || y.prob2a.vec
+```
+
+Can you explain what's happening?  Write up a brief explanation below.
+
+<font color="#336600">
+
+###(i)Evaluates & expression comparing each corresponding vector value and returns a vector.
+###(ii)Only evaluates & expression for first element of each vector only.
+###(iii)Evalutes | expression comparing each corresponding vector value and returns a vector.
+###(iv)Only evaluates | expression for first element of each vector only
+
+</font>
+
+##### (b) Using `all()`
+
+Two people were asked to give their preferences between two options: [Facebook, Twitter], [Safari, Chrome], [Mac, PC], [Summer, Winter].  Their results are given below.
+
+```{r}
+alice.prefs <- c("Twitter", "Safari", "Mac", "Summer")
+bob.prefs <- c("Facebook", "Chrome", "PC", "Summer")
+```
+
+Use the `all()` function to determine if the two people have identical preferences. (Your code should ouput a single Boolean value, either `TRUE` or `FALSE`)
+
+```{r}
+##Your code here 
+all(alice.prefs == bob.prefs)
+```
+
+##### (c) Using `any()` 
+
+Use the `any()` function to determine if the two people have any preferences in common.  (Your code should output a single Boolean value, either `TRUE` or `FALSE`)
+```{r}
+##Your code here 
+any(alice.prefs == bob.prefs)
+```
+
+
+##### (d) Missing values.
+
+Let `age` be the vector defined below.
+
+```{r}
+age <- c(18, NA, 25, 71, NA, 45, NA, NA, 18)
+```
+
+Write a Boolean expression that checks whether each entry of `age` is missing (recall missing values are denoted by `NA`).  Your expression should return a Boolean vector having the same length as `age`.
+
+```{r}
+##Your code here 
+is.na(age)
+```
+
+### Problem 3: Referencing vector elements
+
+##### (a)  `which()` practice
+
+Write code that returns the indexes of `age` that are missing.
+
+```{r}
+##Your code here 
+which(is.na(age))
+```
+
+##### (b) Getting non-missing values
+
+Write code that uses negative indexes and your solution from (a) to return only the values of `age` that are *not* missing. (i.e., your code should result in a vector with elements: 18, 25, 71, 45, 18) 
+
+
+```{r}
+##Your code here 
+age[-which(is.na(age))]
+```
+
+##### (c)  A more direct way of getting non-missing values
+
+Add the negation operator `!` just before `is.na()` function to write an expression that returns only the values of `age` that are *not* missing.
+
+```{r}
+##Your code here 
+age[which(!is.na(age))]
+```
+
+##### (d) More `which()` practice
+
+For the next three problems we'll use the preloaded `cars` data set.
+
+```{r}
+speed <- cars$speed
+dist <- cars$dist
+```
+
+Write code to figure out which cars had a stopping distance of 30 feet or more.
+
+```{r}
+##Your code here 
+which(dist >= 30)
+```
+
+##### (e) `which.min`, `which.max` practice
+
+Use the `which.min()` function to figure out which car had the *shortest* stopping distance. (Your code should return the car's index.)
+
+```{r}
+##Your code here 
+which.min(dist)
+```
+
+##### (f) More practice 
+
+Use the `which.max()` function to figure out the *speed* of the car that had the *longest* stopping distance.  (Your code should return the car's speed.)
+
+```{r}
+##Your code here 
+speed[which.max(dist)]
+```
+
+### Problem 4: Data frame basics
+
+
+##### (a) Importing data.
+
+Use the `read.csv()` function to import the survey data provided to you on LMS into a variable called `survey`.
+
+```{r}
+##Your code here 
+library(readr)
+survey_data <- read_csv("C:/Users/Admin/Desktop/Fall 2021/Telling Stories with Data/Coding Assignment 1/survey_data.csv")
+View(survey_data)
+```
+
+##### (b) `$` notation
+
+Use the `$` operator to select the Rexperience column from the `survey` data
+
+```{r}
+##Your code here 
+survey_data$Rexperience
+```
+
+##### (c) [,] notation
+
+Repeat part (b) using `[,]` notation.  i.e., Use `[,]` notation to select the TVhours column from the `survey` data by name (i.e., obtain this column by using the name "Rexperience" instead of using the column number)
+
+```{r}
+##Your code here 
+survey_data[, "Rexperience"]
+```
+
+##### (d) [[]] notation
+
+Repeat part (c) with [[]] notation.
+
+```{r}
+##Your code here 
+which(colnames(survey_data) == "Rexperience")
+survey_data[[4]]
+```
+
+##### (e) [] notation
+
+Repeat part (d), but this time using single blackets (`[ ]`) notation.  
+
+(Observe that this returns a new single-column *data frame*, not just a vector.) 
+
+```{r}
+##Your code here 
+survey_data[4]
+```
+
+##### (f) Data Types
+
+What are datatypes for the Rexperience and TVhours columns in the data provided? Write code to confirm the datatypes. 
+
+```{r}
+##Your code here 
+typeof(survey_data$Rexperience)
+typeof(survey_data$TVhours)
+
+```
+
+<font color="#336600">
+
+Rexperience is a character and TVhours is double. 
+
+</font>
+
+##### (g) `subset()` practice
+
+Use the `subset()` function to select all the survey data on Program, OperatingSystem, and TVhours for respondents whose Rexperience is "Basic competence" *or* who watched 8 or more hours of TV last week.
+
+```{r}
+##Your code here 
+sub.Program.Os<-subset(survey_data, TVhours >=8 | Rexperience == "Basic competence",select = c(Program, OperatingSystem))
+```
+
+### Problem 5: Inline code practice.
+
+One of the greatest benefits of r markdown is its ability to process inline code. Copy the text inside the code chunk below to a space outside the code chunk just below this paragraph and see what happens when you knit the file. 
+
+```{r, eval = FALSE }
+Students of this class on average watch `r round(mean(survey_data$TVhours), 2)` hours of TV. 
+```
+
+:::::::::::::::::::::::::::::::::  
+Students of this class on average watch `r round(mean(survey_data$TVhours), 2)` hours of TV.   
+:::::::::::::::::::::::::::::::::  
+
+Replace all occurrences of ___in the paragraph below with an inline code chunk supplying the appropriate information.
+
+```{r}
+# Number of participants in the survey
+num.Respondents<-nrow(survey_data)
+#Filter out HSS students
+HSS<-length(which(survey_data$Program=='HSS'))
+#Ratio of Mac OS X users vs number of survey respondents
+OS<- length(which(survey_data$OperatingSystem=="Mac OS X"))/num.Respondents*100
+#count of HSS students with basic competence in R
+R.basic<-nrow(subset(survey_data, Rexperience=='Basic competence' & Program == "HSS"))/num.Respondents*100
+```
+
+
+Of the `r num.Respondents` survey respondents, `r HSS` were NOT from the HSS program. We found that `r OS` % of the all students in the class use the Mac OS X operating system. `r R.basic` % of HSS students report having Basic competence in R.
+
+
