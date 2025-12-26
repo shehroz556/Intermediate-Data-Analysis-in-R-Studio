@@ -1,7 +1,5 @@
 ---
-title: "coding_assignment_3"
-author: "Shehroz Jawad Khan"
-date: "Assigned November 5, 2021"
+
 output: 
     html_document:
     toc: true
@@ -10,19 +8,6 @@ output:
     highlight: tango
 ---
 
-##### This homework is due by **11:55 pm on Sunday, November 14, 2021**.  To complete this assignment, follow these steps:
-
-1. Download the `coding_assignment_3.Rmd` file from LMS.
-
-2. Open `coding_assignment_3.Rmd` in RStudio.
-
-3. Replace the "Your Name Here" text in the `author:` field with your own name.
-
-4. Supply your solutions to the homework by editing `coding_assignment_3.Rmd`.
-
-5. When you have completed the homework and have **checked** that your code both runs in the Console and knits correctly when you click `Knit HTML`, rename the R Markdown file to `coding_assignment_3_YourNameHere.Rmd`, and submit the markdown AND the html on LMS  (YourNameHere should be changed to your own name.)
-
-##### Homework tips:
 
 1. Recall the following useful RStudio hotkeys.
 
@@ -57,7 +42,7 @@ library(naniar)
 
 ```{r}
 #set working directory here 
-setwd("C:/Users/Admin/Desktop/Fall 2021/Telling Stories with Data/Coding Assignment 3")
+setwd("pathway")
 ```
 
 
@@ -266,7 +251,7 @@ For this problem, start by loading the `metal_bands` dataset that has been provi
 
 ```{r}
 # Import data file here
-metal_bands_2017 <- read_csv("C:/Users/Admin/Desktop/Fall 2021/Telling Stories with Data/Coding Assignment 3/metal_bands_2017.csv")
+metal_bands_2017 <- read_csv("pathway")
 View(metal_bands_2017)
 ```
 
@@ -497,3 +482,4 @@ metal_bands_2017 %>%
 The total number of bands (death + other) is 1294 + 3706. Hence, the proportion of all metal bands which are death metal is 1294/(1294 + 3706). This comes out to be approximately 26%. 
 
 </font></b>
+
