@@ -1,0 +1,356 @@
+---
+title: "coding_assignment_5"
+author: "Shehroz Jawad Khan"
+date: "Assigned November 29, 2021"
+output: 
+    html_document:
+    toc: true
+    toc_depth: 3
+    theme: paper
+    highlight: tango
+---
+
+
+##### This homework is due by **11:55 pm on Sunday, December 05, 2021**.  To complete this assignment, follow these steps:
+
+1. Download the `coding_assignment_5.Rmd` file from LMS.
+
+2. Open `coding_assignment_5.Rmd` in RStudio.
+
+3. Replace the "Your Name Here" text in the `author:` field with your own name.
+
+4. Supply your solutions to the homework by editing `coding_assignment_5.Rmd`.
+
+5. When you have completed the homework and have **checked** that your code both runs in the Console and knits correctly when you click `Knit HTML`, rename the R Markdown file to `coding_assignment_5_YourNameHere.Rmd`, and submit on LMS  (YourNameHere should be changed to your own name.) You must sumbit both your .rmd **AND** your html file.
+
+##### Homework tips:
+
+1. Recall the following useful RStudio hotkeys.
+
+|Keystroke      | Description |
+|----------------|-----------------------------------------------------------------------------|
+| `<tab>`        | Autocompletes commands and filenames,  and lists arguments for functions.|
+| `<up>`         | Cycles through previous commands in the console prompt |
+| `<ctrl-up>`    | Lists history of previous commands matching an unfinished one |
+| `<ctrl-enter>` | Runs current line from source window to Console. Good for trying things out ideas from a source file. |
+| `<ESC>`        | Aborts an unfinished command and get out of the + prompt |
+
+
+
+**Note**: Shown above are the Windows/Linux keys.  For Mac OS X, the `<ctrl>` key should be substituted with the `<command>` (&#8984;) key.
+
+2. Instead of sending code line-by-line with `<ctrl-enter>`, you can send entire code chunks, and even run all of the code chunks in your .Rmd file. Look under the <Chunks> menu of the Source panel.
+
+3. Run your code in the Console and Knit HTML frequently to check for errors.
+
+4. You may find it easier to solve a problem by interacting only with the Console at first. 
+
+
+```{r}
+## Load required libraries here 
+library(MASS)
+library(tidyverse)
+library(ggplot2)
+library(plyr)
+library(dplyr)
+```
+
+
+### Problem 1: ggplot practice 
+
+For this exercise we'll go back to the Cars93 data set in the MASS library
+
+##### (a) size mapping, geom_point()
+
+Define a `ggplot` object using the Cars93 data set that you can use to view `Price` on the y-axis, `MPG.highway` on the x-axis, and set the `size` mapping to be based on `Horsepower` - i.e. the more the horse power, the larger the scatter point on the graph. 
+
+Use `geom_point()` to create a scatterplot from your `ggplot` object.
+
+```{r}
+#Your code here. 
+#Loading the dataset
+Cars93 <- data.frame(Cars93, package = "MASS")
+
+ggplot(Cars93, aes(MPG.highway,Price, size = Horsepower)) + geom_point()
+```
+
+##### (b) colour mapping
+
+Repeat part (a), this time also setting the `colour` mapping to be based on `Origin`.
+
+```{r}
+#Your code here. 
+ggplot(Cars93, aes(MPG.highway,Price, size = Horsepower, color = Origin)) + geom_point()
+```
+
+
+##### (c) changing color palette
+
+Repeat part (b), this time using the `scale_colour_manual()` layer to specify that you want to use `cbPalette` as your color palette.
+
+```{r, echo = FALSE, message= FALSE, warning=FALSE}
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+#Your Code here
+ggplot(Cars93, aes(MPG.highway,Price,color=Origin, size = Horsepower)) + geom_point()+ scale_colour_manual(values = cbPalette)
+```
+
+
+### Problem 2: More ggplot2 practice
+  
+##### (a) stat_smooth()  
+
+Repeat part 2(b), this time using `stat_smooth()` to add a layer showing the smoothed curve representing how `Price` varies with `MPG.highway`.  Your graph should have only ONE smooth line depicting the relationship between  `Price` and `MPG.highway`.
+
+```{r}
+#Your code here. 
+ggplot(data = Cars93, aes(MPG.highway, Price,color=Origin)) + geom_point(aes(size = Horsepower))+ stat_smooth(se = TRUE,level = 0.95)
+```
+
+   
+##### (b) facet_grid() 
+
+Use your ggplot object from 2(b) along with the `geom_point()` and `facet_grid` layers to create scatterplots of `Price` against `MPG.highway`, broken down by (conditioned on) `Origin`.  
+
+```{r}
+#Your code here. 
+ggplot(Cars93, aes(MPG.highway,Price,color=Origin)) + geom_point(aes(size = Horsepower)) + facet_grid(rows =vars(Origin))
+```
+
+
+(Your code should produce a figure with two scatterplots, analogous to the `facet_wrap` example from class.  Note that the number of scatterplots produced is equal to the number of levels inside the variable it is being faceted by. `Origin` has two levels.)  
+
+##### (c) Overlaying regression lines.
+
+Modify your solution to part (b) to also display regression lines for **EACH** scatterplot. 
+
+```{r}
+#Your code here. 
+ggplot(Cars93, aes(MPG.highway,Price,color=Origin)) + geom_point(aes(size = Horsepower)) + facet_grid( rows = vars(Origin)) + geom_smooth(method=lm)
+```
+
+
+### Problem 3: GGplot to Visualize Summary Tables 
+
+This problem uses the Adult dataset, which we load below.  The main variable of interest here is `high.income`, which indicates whether the individual's income was over $50K.  Anyone for whom `high.income == 1` is considered a "high earner".
+
+```{r, message= FALSE, warning=FALSE}
+
+adult.data <- read.csv("http://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data", header=FALSE, fill=FALSE, strip.white=T,
+                 col.names=c("age", "type_employer", "fnlwgt", "education", 
+                "education_num","marital", "occupation", "relationship", "race","sex",
+                "capital_gain", "capital_loss", "hr_per_week","country", "income"))
+adult.data <- mutate(adult.data,
+                     high.income = as.numeric(income == ">50K"))
+```
+
+##### (a) Income by education level
+
+Produce a summary table showing how many individuals there are in each `education_num` bin, and how the proportion of high earners varies across `education_num` levels.  Your table should have column names: `education_num`, `count` and `high.earn.rate`.  
+
+```{r}
+#Your code here. 
+table1 <- adult.data %>%
+  group_by(education_num) %>%
+  dplyr::summarise(
+  count = n(),
+  high.earn.rate = mean(high.income)
+  )
+table1
+
+```
+
+
+##### (b) Constructing a bar chart
+
+Using the `ggplot` and `geom_bar` commands along with your data summary from part **(a)** to create a bar chart showing the high earning rate on the y axis and `education_num` on the x axis.  Specify that the color of the bars should be determined by the number of individuals in each bin.
+
+```{r}
+#Your code here. 
+ggplot(table1, aes(y = high.earn.rate , x = education_num, color = count)) + geom_bar(stat = "identity")
+```
+
+
+
+##### (c) summary table with multiple splitting variables
+
+Use the `ddply()` function to produce a summary table showing how the proportion of high earners varies across all combinations of the following variables: `sex`, `race`, and `marital` (marital status).  In addition to showing the proportion of high earners, your table should also show the number of individuals in each bin.  Your table should have column names: `sex`, `race`, `marital`, `count` and `high.earn.rate`.   
+
+Use the `kable()` function from the `knitr` library to display the table from part **(c)** in nice formatting.  You should use the `digits` argument to ensure that the values in your table are being rounded to a reasonable number of decimal places.  
+
+```{r, eval = FALSE}
+##Sample code chunk using kable 
+
+library(knitr)
+
+neat_summary <-kable(summary_table, digits = 3, format = "markdown")
+
+neat_summary
+```
+
+```{r}
+#Your code here. 
+summary_table <- ddply(adult.data, .(sex, race, marital), dplyr::summarise, count = n(), high.earn.rate = mean(high.income))
+summary_table
+```
+
+
+##### (d) A more complex bar chart.
+
+Using the table you created in 4(c), use ggplot graphics to construct a plot that looks like the one provided in the expected output for this assignment. 
+
+**Hint** You may find it useful to use the following layers: `facet_grid`, `coord_flip` (for horizontal bar charts), `theme` (rotating x axis text) and `guides` (removing fill legend). 
+
+```{r}
+#Your code here. 
+ggplot(summary_table, aes(y =high.earn.rate, x= marital, fill = race))+
+  geom_bar(stat = "identity")+
+  facet_wrap(~ race+sex)+coord_flip()+
+  guides(fill = "none")+
+  theme(axis.text.x=element_text(angle=90,hjust=1))+
+  xlab("Marital Status")+
+  ylab("Proportion Earning over 50K per Year")
+```
+
+
+### Problem 4: More Evolved Applications of GGplot2 (Each part in this question is worth 2 points)
+
+This problem uses data on superbowl ads over the past several years. Load the data by running the code dhunk provided. A data dictionary for some variables of interest is included below. 
+
+|Variable    | Description |
+|----------------|-----------------------------------------------------------------------------|
+| `<year>`        | Superbowl year|
+| `<brand>`         | Brand for commercial |
+| `<superbowl_ads_dot_com_url>`    | superbowl ad url|
+| `<youtube_url>` | youtube ad url |
+| `<funny>`        | TRUE if contains humor |
+| `<patriotic>`        | TRUE if contains patriotic content |
+| `<celebrity>`        | TRUE if features celebrity|
+| `<danger>`        | TRUE if contains danger |
+| `<animals>`        | TRUE if features animals|
+| `<use_sex>`        | TRUE if contains sexual content |
+| `<view_count>`        | youtube view count|
+| `<like_count>`        | youtube like count|
+| `<dislike_count>`        | dislike count|
+| `<comment_count>`        | youtube comment count|
+  
+```{r, message = FALSE, warning = FALSE}
+library(tidyr)
+
+superbowl <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-03-02/youtube.csv')
+
+superbowl<- 
+  superbowl%>% arrange(year, view_count) %>% drop_na(view_count)
+```
+
+**NOTE**: This data contains missing values, you are not expected to do any treatment for them. You also don't need to worry about replicating chart aesthetics, themes, and customizations. 
+
+##### (a) Line Chart for Time Series Data 
+
+For this question, you will produce a visualization that shows the brand with the highest view count of superbowl ads on youtube since 2013.   
+
+To start, you will find it useful to produce a summary table that shows the brand with the highest view count in each year since 2013 along with the corresponding view count. Your final chart should replicate the expected output provided.
+
+```{r}
+#Your code here. 
+year_grouped <- group_by(superbowl, year)
+summary_table_viewcount <- year_grouped %>%
+  filter(year > 2012) %>%
+  dplyr::summarise(
+    Max = max(view_count),
+    Brand = brand[which.max(view_count)]
+  )
+summary_table_viewcount
+```
+```{r}
+#Visualization code
+ggplot(summary_table_viewcount, aes(x=year, y=Max)) +
+  geom_line( color="#69b3a2") + 
+  xlab("Year") + 
+  ylab("Youtube View Count")+
+  theme(axis.text.x=element_text(angle=60, hjust=1))+ 
+    geom_text(aes(label=Brand),hjust=0, vjust=0)+ geom_point(size = 2,alpha = 0.6)
+```
+
+##### (b) Do ads featuring celebrities or animals get more views than ads that don't?   
+
+For this question, you will produce a visualization that shows the average number of views for ads that featured celebrities or animals compared to ads that didn't, for all years after 2013.  
+
+To start, you will find it useful to produce a summary table that shows the average number views for ads that featured celebrities or animals and ads that didn't feature celebrities or animals for each year since 2013.  
+
+Based on your visualization, do you think featuring celebrities or animals is a sure fire way to get more views?  
+
+```{r}
+#Your code here. 
+#Constructing a new variable 'animal_or_celebrity' in our dataset
+superbowl$animal_or_celebrity <- ifelse(superbowl$animals == "TRUE" | superbowl$celebrity == "TRUE", 1, 0)
+
+#Grouping our dataset by year
+year_grouped <- group_by(superbowl, year, animal_or_celebrity)
+
+#Constructing the summary table
+summary_table_viewcount_2 <- 
+  year_grouped %>%
+  filter(year > 2012) %>%
+  dplyr::summarise(
+    avg_viewcount_animal_celebrity = ifelse(animal_or_celebrity == 1, mean(view_count), mean(view_count))
+  )
+
+#Taking distinct values
+summary_table_viewcount_2 <- distinct(summary_table_viewcount_2)
+
+summary_table_viewcount_2
+```
+
+```{r}
+#Visualization Code
+ggplot(summary_table_viewcount_2, aes(x = year, y = avg_viewcount_animal_celebrity, fill = factor(animal_or_celebrity))) +
+  geom_bar(stat = "identity", position = position_dodge(), alpha = 1)+ labs(x = "Year", y = "Average Youtube Views", title = "Does the ads featuring celebrities or animals get more views?")
+```
+
+
+<font color="#0033cc">
+
+Not necessarily. If we see the time around 2017, the ads not featuring animals or celebrities have gotten higher views on average than the ads featuring animals or celebrities. However, recent trends show that the ads featuring animals or celebrities are getting relatively higher views i.e in year 2020. The difference is too great. 
+
+</font>
+ 
+
+##### (c) Are car brands more successful when they feature an element of danger? 
+
+For this question, you will produce a visualization that shows average number of youtube views for car brands that featured danger and car brands that didn't feature danger. Filter for years between 2013 and 2016 inclusive. 
+
+To start, you will find it useful to produce a summary table that shows the average number views for ads that featured celebrities and ads that didn't feature celebrities for each year since 2013. 
+
+Based on your visualization, do you think car brands should feature danger to get more views?   
+
+```{r}
+#Your code here. 
+
+#Grouping our dataset by year
+year_grouped <- group_by(superbowl, year, danger)
+
+#Constructing the summary table
+summary_table_viewcount_3 <- 
+  year_grouped %>%
+  filter(year > 2012 & year < 2017) %>%
+  dplyr::summarise(
+    avg_viewcount_danger = ifelse(danger == "TRUE", mean(view_count), mean(view_count))
+  )
+
+#Taking distinct values
+summary_table_viewcount_3 <- distinct(summary_table_viewcount_3)
+
+summary_table_viewcount_3
+```
+```{r}
+#Visualization Code
+ggplot(summary_table_viewcount_3, aes(x = year, y = avg_viewcount_danger, fill = factor(danger))) +
+  geom_bar(stat = "identity", position = position_dodge(), alpha = 1)+ labs(x = "Year", y = "Average Youtube Views", title = "Do Car Brands have more success when they feature Danger>")
+```
+
+<font color="#0033cc">
+
+From 2013 till 2015, the ads not featuring danger were getting more views than those that were featuring danger. However, in 2016, the ads featuring danger had relatively higher views by a huge margin. Hence, I will say 'not neccesarily'. We need more data points to make an inference. 
+
+</font>
