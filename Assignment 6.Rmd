@@ -1,0 +1,350 @@
+---
+title: "coding_assignment_6"
+author: "Shehroz Jawad Khan"
+date: "Assigned December 15, 2021"
+output: 
+    html_document:
+    toc: true
+    toc_depth: 3
+    theme: paper
+    highlight: tango
+---
+
+
+##### This homework is due by **11:55 pm on Saturday, December 25, 2021**.  To complete this assignment, follow these steps:
+
+1. Download the `coding_assignment_6.Rmd` file from LMS.
+
+2. Open `coding_assignment_6.Rmd` in RStudio.
+
+3. Replace the "Your Name Here" text in the `author:` field with your own name.
+
+4. Supply your solutions to the homework by editing `coding_assignment_6.Rmd`.
+
+5. When you have completed the homework and have **checked** that your code both runs in the Console and knits correctly when you click `Knit HTML`, rename the R Markdown file to `coding_assignment_6_YourNameHere.Rmd`, and submit on LMS  (YourNameHere should be changed to your own name.) You must sumbit both your .rmd **AND** your html file.
+
+##### Homework tips:
+
+1. Recall the following useful RStudio hotkeys.
+
+|Keystroke      | Description |
+|----------------|-----------------------------------------------------------------------------|
+| `<tab>`        | Autocompletes commands and filenames,  and lists arguments for functions.|
+| `<up>`         | Cycles through previous commands in the console prompt |
+| `<ctrl-up>`    | Lists history of previous commands matching an unfinished one |
+| `<ctrl-enter>` | Runs current line from source window to Console. Good for trying things out ideas from a source file. |
+| `<ESC>`        | Aborts an unfinished command and get out of the + prompt |
+
+
+
+**Note**: Shown above are the Windows/Linux keys.  For Mac OS X, the `<ctrl>` key should be substituted with the `<command>` (&#8984;) key.
+
+2. Instead of sending code line-by-line with `<ctrl-enter>`, you can send entire code chunks, and even run all of the code chunks in your .Rmd file. Look under the <Chunks> menu of the Source panel.
+
+3. Run your code in the Console and Knit HTML frequently to check for errors.
+
+4. You may find it easier to solve a problem by interacting only with the Console at first. 
+
+
+## Section 1
+
+*Suppose the District of Columbia has data on recent traffic stops by some Metropolitan Police Department officers. The data are in two data sets, available as StopsData11 and StopsData21. Using these data, answer the following questions.* 
+
+```{r}
+#Loading the required libraries
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(stringr)
+library(ggpubr)
+library(tidyverse)
+```
+
+```{r}
+#Loading the required datasets
+
+#Stopsdata11
+StopData11 <- read_csv("C:/Users/Admin/Desktop/Fall 2021/Telling Stories with Data/Coding Assignment 6/Coding Assignment 6 Data/StopData11.csv")
+
+head(StopData11)
+```
+```{r}
+#Stopsdata21
+StopData21 <- read_csv("C:/Users/Admin/Desktop/Fall 2021/Telling Stories with Data/Coding Assignment 6/Coding Assignment 6 Data/StopData21.csv")
+
+head(StopData21)
+```
+
+### Question 1
+
+*Which ward has the most stops?* (2 points)
+
+```{r}
+#In StopData21, we count the number of occurences of each unique value in 'ward' variable
+
+table_1 <- StopData21 %>%
+    group_by(ward) %>%
+    summarize(
+        count = n()
+              )
+which.max(table_1$count)
+```
+
+<font color="#0033cc">
+
+We can see that ward 7 has the most stops. 
+
+</font>
+
+### Question 2 
+
+*Create a plot that shows count of stops per ward. The ward with the most stops should be a different color* (1 point)
+
+```{r}
+#We will create a scatterplot 
+cols = c("7" = "red")
+ggplot(table_1, aes(x=ward, y=count)) + geom_point(aes(colour = factor(ward)), size = 3)+
+    scale_colour_manual(values = cols, limits = c("7"))+
+    theme(legend.position = "None")
+```
+
+
+### Question 3  
+
+Suppose the DC government enacted a policy that allows people with low incomes (less than $30,000 per year) to have their ticket amount reduced 20 to 40 percent. The goal of the new policy is to reduce the number of overdue tickets among low-income residents.
+
+In this section, you will use the same traffic stop data as in Section I (StopsData11 and StopsData21), as well as data on the court outcomes of tickets (CourtsData1) and data on residents’ income (IncomeData). Use the four data sets to answer the following questions. All the data in this dataset is for AFTER the policy was implemented. 
+```{r}
+#Loading the other required datasets
+
+#IncomeData
+IncomeData <- read_csv("C:/Users/Admin/Desktop/Fall 2021/Telling Stories with Data/Coding Assignment 6/Coding Assignment 6 Data/IncomeData.csv")
+
+head(IncomeData)
+```
+
+```{r}
+#CourtsData1
+CourtsData1 <- read_csv("C:/Users/Admin/Desktop/Fall 2021/Telling Stories with Data/Coding Assignment 6/Coding Assignment 6 Data/CourtsData1.csv")
+
+#Merging IncomeData and CourtsData1 by 'stop_id'
+
+merged_data <- merge(CourtsData1, IncomeData, by = "stop_id", sort = TRUE)
+
+#Cleaning merged_data
+merged_data$ticket_status <- str_replace(merged_data$ticket_status, pattern = "50,", replacement = "")
+
+#Constructing another variable which shows income_status
+merged_data$income_status <- ifelse(merged_data$income >= 30000, "income >= 30000", "income < 30000")
+
+head(merged_data)
+```
+
+
+#### Part (a) 
+
+*Is there a large difference between the ticket amounts for people with incomes less than $30,000 and those with incomes greater than or equal to $30,000? Is this difference statistically significant? Which category of income groups has a greater number of outliers? Do you think the policy was properly implemented? Explain your answer in a paragraph.* (3 points)
+
+```{r}
+#Checking the means of ticket amount of the two groups - income >= 30000 and income < 30000
+
+merged_data %>%
+    group_by(income_status) %>%
+    summarize(
+        mean_ticket_amount = mean(ticket_amount)
+    )
+```
+```{r}
+#Performing a t-test
+t.test(ticket_amount ~ income_status, data = merged_data)
+```
+```{r}
+#Checking to observe the number of outliers in the each income group
+box_plot <- boxplot(merged_data$ticket_amount ~ merged_data$income_status, col = c("#FFE0B2", "#FFA726", "#F57C00"))
+```
+
+<font color="#0033cc">
+
+As for the first part of the question, the mean of ticket amounts for the two income groups differ by approximately 8. This difference is statistically significant at 1% significance level as the p-vale < 0.01 determined in the t-test. The box-plot shows that the income group "income < 30000" have relatively more outliers.To check if the policy was properly implemented, we will need data for 'ticket_status' after the policy was implemented so that we could see if there was a substantial decrease in the number of overdue tickets. Only then we could gauge if the policy had been effective. 
+
+</font>
+
+
+#### Part (b)
+
+*You have been asked to determine whether the new policy has a detectable impact on residents' likelihood of paying on time. Explain the approach you took for your analysis*  (3 points)
+
+<font color="#0033cc">
+
+Firstly, I would observe same data before policy implementation, and then same data after policy implementation. Then I would observe whether the number of 'unpaid' tickets (overdue, challenged, pending) have substantially decreased between pre-policy time period and post-policy time period. 
+
+I would also perform a t-test to measure if there is any significant difference between the mean of 'unpaid' tickets pre-policy and post-policy. If there is a difference, I would test whether the difference is negative or positive, and whether it is significant or not.
+
+If mean('unpaid' tickets | pre policy) > mean('unpaid' tickets | post policy), and the difference is significant, we could say that the new policy has a significant impact on resident's likelihood of paying on time. 
+
+</font>
+
+
+#### Part (c)
+
+*The Chair of the Council's Committee on the Judiciary and Public Safety, Councilmember Allen, asks you for a recommendation on whether the policy should be expanded to include residents with incomes less than $60,000. In a paragraph or two, provide your answer. Your response should include an estimation of the size of the problem. Provide some indication of how confident you are in your response.* (3 points)
+
+<font color="#0033cc">
+
+There are two groups of people who have been issued a ticket:
+
+1. Income < 30000
+2. 30000 <= Income < 60000
+
+Firstly, we must check how many people are there in the second group, and compare it with the number of people in other groups. 
+
+Secondly, we check the mean difference between the number of people in group 1 having unpaid tickets and the number of people in group 2 having unpaid tickets. 
+
+In order for us to include the group 2 in our policy, mean(unpaid tickets | group 2) >= mean(unpaid tickets | group 1)
+
+</font>
+
+
+```{r}
+#Creating a new level within income_status_2 with three groups: income < 30000, 30000 <= income < 60000, income >= 60000
+
+merged_data$income_status_2 <- ifelse(merged_data$income >= 30000 & merged_data$income < 60000, "30000 <= Income < 60000", ifelse(merged_data$income < 30000, "income < 30000", "income >= 60000"))
+
+#To check how many mnay people in these three income groups have ticket = TRUE, we must merge once again
+merged_data_final <- merge(merged_data, StopData11, by = "stop_id", sort = TRUE)
+
+head(merged_data_final)
+```
+
+
+```{r}
+#Now, we check how many people are there in each income group with ticket = TRUE
+
+ggplot(data = merged_data_final, aes(x = factor(income_status_2), y = length(ticket == "TRUE"))) +
+  geom_bar(stat = "identity", width = 0.7, fill = "steelblue")+
+    labs(title = "Count of tickets = TRUE by Income group", x = "Income Group", y = "Frequency") +
+    theme_minimal()
+```
+
+```{r}
+#Check the mean difference between the number of people in group 1 (income < 30000) having unpaid tickets and the number of people in group 2 (30000 <= income < 60000) having unpaid tickets
+
+
+#Mean of unpaid tickets for group 1 - income less than 30000
+merged_data_final %>%
+  filter(income_status_2 == "income < 30000") %>%
+  summarise(
+    mean_income_less_30000 = mean(ticket_status != "paid")
+  )
+```
+
+```{r}
+#mean of unpaid tickets by group 2 - 30000 <= Income < 60000
+merged_data_final %>%
+  filter(income_status_2 == "30000 <= Income < 60000") %>%
+  summarise(
+    mean_income_less_60000 = mean(ticket_status != "paid")
+  )
+```
+
+<font color="#0033cc">
+
+Our analysis show two things:
+
+1. The histogram shows that the income group '30000 <= Income < 60000' have been issued a relatively larger amount of tickets. 
+
+2. We can see that the mean (unpaid tickets | group 2) > mean (unpaid tickets | group 1). 
+
+Both of these reasons show that the income group '30000 <= Income < 60000' is also at a relative disadvantage. Thus, it would certainly benefit more if it was included in the policy. 
+
+</font>
+### Question 4 
+
+#### Part (a)
+
+*Create 10 year bins for age, and graphically show which age bin is most likely to recieve a ticket. E.g. 10-20, 21-30. Is the data consistent with your expectations?* (2 points)
+```{r}
+#To check how many bins to create
+summary(StopData11$driver_age)
+```
+
+```{r}
+#Converting age variable into age bins
+
+StopData11 <- StopData11 %>%
+    mutate(driver_age = case_when(
+        driver_age >= 111  & driver_age <= 120 ~ '111-120',
+        driver_age >= 101  & driver_age <= 110 ~ '101-110',
+        driver_age >= 91  & driver_age <= 100 ~ '91-100',
+        driver_age >= 81  & driver_age <= 90 ~ '81-90',
+        driver_age >= 71  & driver_age <= 80 ~ '71-80',
+        driver_age >= 61  & driver_age <= 70 ~ '61-70',
+        driver_age >= 51  & driver_age <= 60 ~ '51-60',
+        driver_age >= 41  & driver_age <= 50 ~ '41-50',
+        driver_age >= 31  & driver_age <= 40 ~ '31-40',
+        driver_age >= 21  & driver_age <= 30 ~ '21-30',
+        driver_age >= 10  & driver_age <= 20 ~ '10-20')
+           ) 
+head(StopData11)
+```
+
+```{r}
+#Checking to see which age group has had the highest number of tickets
+StopData11 %>%
+    group_by(driver_age) %>%
+    summarise(
+        count_tickets = length(ticket == "TRUE")
+    )
+```
+
+```{r}
+#Creating a histogram
+
+ggplot(data = StopData11, aes(x = factor(driver_age), y = length(ticket == "TRUE"))) +
+  geom_bar(stat = "identity", width = 0.7, fill = "steelblue")+
+    labs(title = "Count of tickets = TRUE by Age Bracket", x = "Age Bracket", y = "Frequency") +
+    theme_minimal()
+```
+
+
+<font color="#0033cc">
+
+The histogram shows that age bin 10-20 is more likely to receive a ticket. 
+
+</font>
+
+
+
+#### Part (b)
+
+*Repeat part (a), this time also checking if gender plays a role in how likely one is to recieve a ticket at age group. Explain your findings. Are male drivers safer than female drivers?* (1 point)
+
+```{r}
+#Checking to see which gender has had the highest number of tickets
+StopData11 %>%
+    group_by(driver_sex) %>%
+    summarise(
+        count_tickets = length(ticket == "TRUE")
+    )
+```
+
+```{r}
+#Creating a histogram
+
+ggplot(data = StopData11, aes(factor(driver_sex), y = length(ticket == "TRUE"))) +
+  geom_bar(stat = "identity", width = 0.3, fill = "steelblue")+
+    labs(title = "Count of tickets by Gender", x = "Gender", y = "Frequency") +
+    theme_minimal()
+```
+
+```{r}
+#We see that there is a slight difference between tickets for males and for females such that males have slightly more tickets than females. We will perform a t-test to confirm our results. If we want to test if the male drivers are safer, we would want our alternative hypothesis to say that their mean of getting a ticket is less than the mean of female drivers getting a ticket.So Ho: mean(ticket == TRUE for females) <= mean(ticket == TRUE for males) and H1: mean(ticket == TRUE for females) > mean(ticket == TRUE for males)
+
+t.test(ticket == "TRUE" ~ driver_sex, alternative = "greater", data = StopData11)
+```
+
+<font color="#0033cc">
+
+We fail to reject the null hypothesis at 1% significance level or even 5% significance level as the p-value > 0.01 and p-value >0.05. For this reason, we say that male drivers are not safer than female drivers, but instead, female drivers are more safer than male drivers. This result confirm our observations made through the histogram. 
+
+</font>
