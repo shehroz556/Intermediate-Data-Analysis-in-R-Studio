@@ -1,0 +1,399 @@
+---
+title: "coding_assignment_4"
+author: "Shehroz Jawad Khan"
+date: "Assigned November 18, 2021"
+output: 
+    html_document:
+    toc: true
+    toc_depth: 3
+    theme: paper
+    highlight: tango
+---
+
+
+##### This homework is due by **11:55 pm on Sunday, November 28, 2021**.  To complete this assignment, follow these steps:
+
+1. Download the `coding_assignment_4.Rmd` file from LMS.
+
+2. Open `coding_assignment_4.Rmd` in RStudio.
+
+3. Replace the "Your Name Here" text in the `author:` field with your own name.
+
+4. Supply your solutions to the homework by editing `coding_assignment_4.Rmd`.
+
+5. When you have completed the homework and have **checked** that your code both runs in the Console and knits correctly when you click `Knit HTML`, rename the R Markdown file to `coding_assignment_4_YourNameHere.Rmd`, and submit BOTH the markdown and the HTML on LMS  (YourNameHere should be changed to your own name.)
+
+##### Homework tips:
+
+1. Recall the following useful RStudio hotkeys.
+
+|Keystroke      | Description |
+|----------------|-----------------------------------------------------------------------------|
+| `<tab>`        | Autocompletes commands and filenames,  and lists arguments for functions.|
+| `<up>`         | Cycles through previous commands in the console prompt |
+| `<ctrl-up>`    | Lists history of previous commands matching an unfinished one |
+| `<ctrl-enter>` | Runs current line from source window to Console. Good for trying things out ideas from a source file. |
+| `<ESC>`        | Aborts an unfinished command and get out of the + prompt |
+
+
+
+**Note**: Shown above are the Windows/Linux keys.  For Mac OS X, the `<ctrl>` key should be substituted with the `<command>` (&#8984;) key.
+
+2. Instead of sending code line-by-line with `<ctrl-enter>`, you can send entire code chunks, and even run all of the code chunks in your .Rmd file. Look under the <Chunks> menu of the Source panel.
+
+3. Run your code in the Console and Knit HTML frequently to check for errors.
+
+4. You may find it easier to solve a problem by interacting only with the Console at first. 
+
+
+```{r, message= FALSE, warning= FALSE}
+## Load required packages here 
+library(readr)
+library(tidyverse)
+library(psych)
+library(GGally)
+library(dplyr)
+library(ggplot2)
+library(Rmisc)
+library(ggpubr)
+```
+
+### Problem 1:  1-sample t-tests
+
+
+Start by loading the `adult_data` dataset that can be accessed by running the code chunk below. Once the dataset has been loaded run a few exploratory data analysis commands including `View()` to get a feel of the dataset. 
+
+```{r}
+## Loading the dataset 
+adult_data <- read.csv("http://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data", header=FALSE, 
+                       fill=FALSE, 
+                       strip.white=T, 
+                       col.names=c("age", "type_employer", "fnlwgt", "education", 
+                                   "education_num","marital", "occupation", "relationship", "race","sex","capital_gain",
+                                   "capital_loss", "hr_per_week","country", "income"))
+```
+
+```{r}
+#Viewing the data set
+View(adult_data)
+```
+
+```{r}
+#Looking at the head of the data set 
+head(adult_data)
+```
+
+```{r}
+#looking at the tail of the data set
+tail(adult_data)
+```
+
+```{r}
+#Looking at the structure of the data set
+str(adult_data)
+```
+
+```{r}
+#looking at the summary statistics of the data set
+summary(adult_data)
+```
+```{r}
+#Looking at the correlations between different numeric variables in the data set
+ggcorr(adult_data)
+```
+
+#### (a)  Using your knowledge of the tidyverse and 1-sample t-testing, construct a table called summary_table1 that shows the average `capital_gain` across `education`, along with the lower and upper endpoints of a 95% confidence interval.  Your table should look something like:
+
+```
+      education       mean       lower      upper
+1          10th   404.5745   91.893307   717.2557
+2          11th   215.0979  144.306937   285.8888
+3          12th   284.0878  126.824531   441.3510
+...
+```
+
+```{r}
+# Your code here 
+table <- adult_data %>%
+  group_by(education) %>%
+  dplyr::summarise(mean = mean(capital_gain),
+            lower = mean - (1.96 * sd(capital_gain) / sqrt(n())),
+            upper = mean + (1.96 * sd(capital_gain) / sqrt(n()))
+  )
+
+table
+
+
+```
+
+#### (b) Sort your table so that it appears in ascending order of education. E.g., Preschool is the lowest, 1st-4th the next lowest, etc.  For the post-high school grades, you can use the ordering:  Assoc-voc, Assoc-acdm, Some-college, Bachelors, Masters, Prof-school, Doctorate.  
+
+```{r}
+# Your code here 
+ordered_table <- table %>%
+    arrange(match(education, c("Preschool", "1st-4th", "5th-6th","7th-8th", "9th", "10th", "11th", "12th", "HS-grad", "Assoc-voc", "Assoc-acdm", "Some-college", "Bachelors", "Masters", "Prof-school", "Doctorate")), desc(mean), desc(lower), desc(upper))
+ordered_table
+```
+
+#### (c)  What can you conclude about the association between capital gains and education levels? Does there appear to be a statistically significant difference in capital gains across education?
+
+```{r}
+#Using graphical representation to get the gist of the association
+ggplot(ordered_table, aes(as.factor(education), mean)) + 
+    geom_bar(stat = "identity") + 
+    labs(y = "capital Gain (Mean)", x = "Education");
+```
+
+
+<font color="#0033cc">
+
+From the ordered table, we can see that there is a positive association between the education levels and capital gains. There appears to statistically significant difference between capital gains across education as the mean capital gains lie inside the 95% confidence intervals. 
+
+</font>
+
+### Problem 2: Two-sample t-test 
+
+
+#### (a)  Using your knowledge of the 2-sample t-testing, test whether women on average work the same number of hours per week as men. 
+
+```{r}
+# Your code here 
+#Saving the data in two different vectors
+women_hr_per_week <- adult_data %>%
+  filter(sex == "Female") %>%
+  pull(hr_per_week)
+men_hr_per_week <- adult_data %>%
+  filter(sex == "Male") %>%
+  pull(hr_per_week)
+# Compute t-test
+stat <- t.test(women_hr_per_week, men_hr_per_week)
+stat
+```
+
+
+
+#### (b)  Use in-line coding to answer the question from part (a). Your answer should include what we expect the average difference in means to be, the confidence interval around the difference in means, and our confidence level. 
+
+<font color="#0033cc">
+
+The average difference in means of hrs per week of both genders is estimated to be `r diff(stat$estimate)`. The confidence interval around the difference in means is `r stat$conf.int`. The confidence level is 95%. We expect the difference in means of mens hours per week to be different that women's hours per week. The estimate is statistically significant at 1% significance level. 
+
+</font>
+
+#### (c)  Based on domain expertise, and on ground knowledge, list potential reasons why women may be working less hours than men? 
+
+<font color="#0033cc">
+
+Based on domain expertise and ground knowledge, I would say that women may be working less hours than men because they allot more time to caregiving and other domestic unpaid activities. Additionally, women are often encouraged to take occupational roles such as going part-time or internally facing roles, while men are retained for more 'powerful' positions which demand greater working hours. They may be working shorter hours themselves too the commitment to family is primary by nature according to their respective cultural notions. 
+
+</font>
+
+#### (d)  Using your knowledge of the 2-sample t-testing, test whether women on average have less years of education than men. 
+
+```{r}
+# Your code here 
+#Saving the data in two different vectors
+women_education <- adult_data %>%
+  filter(sex == "Female") %>%
+  pull(education_num)
+men_education <- adult_data %>%
+  filter(sex == "Male") %>%
+  pull(education_num)
+# Compute t-test
+stat2 <- t.test(women_education, men_education)
+stat2
+```
+#### (e)  Using your findings from the above t-test, comment on whether education may be playing a role in why women work less. 
+
+<font color="#0033cc">
+
+We can see that the p-value is less than 0.05, which means that we reject the null and accept the alternative that the true difference in means is not equal to 0. This means that men's average education is significantly different from women's average education. This could indeed play a role in less hours of work per week for women as women in the sample could be less qualified for occupational roles which demand more hours of work per week.
+
+</font>
+
+### Problem 3: 1- Sample Proportion Testing 
+
+#### (a) Create a new variable in `adult_data` called `high_income` that takes the value 1 if individual earns more than 50k, and zero otherwise. Then calculate the mean of this variable. What does variable mean? 
+
+```{r}
+# Your code here 
+adult_data$high_income <- ifelse(adult_data$income == ">50K", 1, 0)
+mean_high_income <- mean(adult_data$high_income)
+mean_high_income
+```
+
+<font color="#0033cc">
+
+It is a dummy variable. It represents the subgroup of high income earners in our sample. 
+
+</font>
+
+#### (b) Create a summary table that shows ONLY the counts of women who are high earners and the counts of women who are not high earners, as well as the proportion of women who are high earners. 
+
+```{r}
+#Your code here 
+#Summary table showing the counts of women as high earners and not high earners
+women_earners <- adult_data %>%
+  filter(sex == "Female") %>%
+  summarise(
+    women_high_earners = length(which(high_income == 1)),
+    women_not_high_earners = length(which(high_income == 0))
+  )
+women_earners
+```
+
+
+```{r}
+#Proportion of women which are high earners
+women_high_earner_proportion = (1179/(1179 + 9592))
+women_high_earner_proportion
+```
+
+#### (c) Use your knowledge of proportion_testing to check whether the proportion of women in the population who are high earners is greater than 10% at the 95% confidence level 
+
+```{r}
+#Your code here 
+prop.test(x = 1179 , n = 1179 + 9592 , p = 0.1, correct = FALSE,
+              alternative = "greater")
+```
+
+#### (d) What do you conclude from your findings from part (c)? 
+
+<font color="#0033cc">
+
+The p-value is 0.0005324, which is less than 0.05. Hence, we reject the null and accept the alternative that the proportion of females who are high earners is significantly greater than 10%. 
+
+</font>
+
+
+### Problem 4: 2-Sample Proportion Testing
+
+In class we only learned how to compute 1 proportion sample tests. This excercise will walk you through how to conduct two sample prop tests. Review the sample code below, and answer the following questions. 
+
+```{r, eval= FALSE, tidy=TRUE}
+
+It is possible to compute a CI for a difference in two proportions using prop.test with summary information. For example, to find a 95% CI for the difference in proportion Sheffield sites with robin song in 2005 vs 2006, we first examine the data:
+  
+table(data$DaySong, data$Year)
+
+##          Year
+## DaySong   2005 2006
+##   Absent    22   32
+##   Present   35   32
+
+To pass this information to prop.test, we now need x to have two entries (the number of “successes” in 2005 and 2006) and n also needs to have two entries (the sample size in each group). We would run:
+
+prop.test(x=c(35,32), n=c(22+35, 32+32),
+          conf.level=0.95)
+## 
+##  2-sample test for equality of proportions with continuity
+##  correction
+## 
+## data:  c(35, 32) out of c(22 + 35, 32 + 32)
+## X-squared = 1.1586, df = 1, p-value = 0.2818
+## alternative hypothesis: two.sided
+## 95 percent confidence interval:
+##  -0.07855448  0.30662466
+## sample estimates:
+##    prop 1    prop 2 
+## 0.6140351 0.5000000
+```
+
+#### (a) Create a summary table that shows the proportion of men and women who are high earners. 
+
+```{r}
+#Your code here
+men_earners <- adult_data %>%
+  filter(sex == "Male") %>%
+  summarise(
+    men_high_earners = length(which(high_income == 1)),
+    men_not_high_earners = length(which(high_income == 0))
+  )
+men_earners
+```
+```{r}
+##Proportion of men which are high earners
+men_high_earner_proportion = (6662/(6662 + 15128))
+men_high_earner_proportion
+```
+```{r}
+#Creating the summary table
+table(men_high_earner_proportion, women_high_earner_proportion)
+```
+
+#### (b) Conduct a proportion test to evaluate whether the proportion of female high earners in the population is less than the proportion of male high earners. 
+
+```{r}
+#Your code here
+prop.test(x=c(1179,6662), n=c(10771, 21790),
+          conf.level=0.95, alternative = "less")
+```
+
+#### (c) What do you conclude about the proportion of male high earners vs the proportion of female high earners. 
+
+<font color="#0033cc">
+
+The p-value is 2.2e-16, which is less than 0.05. Hence, we reject the null and accept the alternative that proportion of female high earners in the population is less than the proportion of male high earners in the population. 
+
+</font>
+
+### Problem 5: Quick Plots in R with GGplot2
+
+#### (a) Create a histogram of age from our adult dataset.Use your histogram of age to answer whether the distribution of age in our dataset is skewed to the right or to the left. 
+
+```{r}
+
+#Your code here 
+hist(adult_data$age, 
+     main="Histogram for Age", 
+     xlab="Age", 
+     border="blue", 
+     col="green",
+     xlim=c(10, 100),
+     las=1, 
+     breaks=20)
+
+```
+
+<font color="#0033cc">
+
+The distribution of age in our data is skewed to the right. 
+
+</font>
+ 
+#### (b) Create a boxplot of years of education by age for each sex. The box plot for each sex should have a different color. Does our data contain more outliers for men or women?
+
+```{r}
+
+#Your code here 
+ggplot(adult_data, aes(x=age, y=education_num, fill=sex)) + 
+    geom_boxplot()
+
+```
+
+<font color="#0033cc">
+
+Our data has more outliers for females. 
+
+</font>
+
+#### (c) Create a visualization that shows the count of the number of times each race appears in our data
+
+```{r}
+#Your code here 
+qplot(race, 
+      data = adult_data, 
+      geom = "bar", 
+      fill = I("blue"),
+      color = I("turquoise"))
+```
+
+#### (d) Write a loop that prints a visualization for each column in adult_data. The visualization should be a histogram if the variable is numeric, and a barchart if the variable is not numeric. Each visualization should be titled by the name of the variable it is visualizing.
+
+```{r}
+# Your code here 
+for(i in names(adult_data)){
+ifelse(is.numeric(i) == TRUE, hist(adult_data[,i]), qplot(i, data = adult_data, geom = "bar"))
+}
+```
+
