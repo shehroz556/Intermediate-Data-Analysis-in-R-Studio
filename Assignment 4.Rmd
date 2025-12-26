@@ -1,7 +1,5 @@
 ---
-title: "coding_assignment_4"
-author: "Shehroz Jawad Khan"
-date: "Assigned November 18, 2021"
+
 output: 
     html_document:
     toc: true
@@ -11,19 +9,7 @@ output:
 ---
 
 
-##### This homework is due by **11:55 pm on Sunday, November 28, 2021**.  To complete this assignment, follow these steps:
 
-1. Download the `coding_assignment_4.Rmd` file from LMS.
-
-2. Open `coding_assignment_4.Rmd` in RStudio.
-
-3. Replace the "Your Name Here" text in the `author:` field with your own name.
-
-4. Supply your solutions to the homework by editing `coding_assignment_4.Rmd`.
-
-5. When you have completed the homework and have **checked** that your code both runs in the Console and knits correctly when you click `Knit HTML`, rename the R Markdown file to `coding_assignment_4_YourNameHere.Rmd`, and submit BOTH the markdown and the HTML on LMS  (YourNameHere should be changed to your own name.)
-
-##### Homework tips:
 
 1. Recall the following useful RStudio hotkeys.
 
@@ -396,4 +382,5 @@ for(i in names(adult_data)){
 ifelse(is.numeric(i) == TRUE, hist(adult_data[,i]), qplot(i, data = adult_data, geom = "bar"))
 }
 ```
+
 
